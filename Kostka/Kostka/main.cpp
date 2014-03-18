@@ -195,12 +195,8 @@ void kopiujScianyZewnetrzne()
 {
 	int i, j;
 	for (i = 0; i < 6; i++)
-	{
 		for (j = 0; j < 9; j++)
-		{
 			kolor_zew_kopia[i][j] = kolor_zew[i][j];
-		}
-	}
 }
 void zmienTabliceKolorow2()
 {
@@ -324,8 +320,9 @@ void zmienTabliceKolorow2()
 	kolor_zew_kopia[0][1] = ref_kopia[0][2][1];
 	kolor_zew_kopia[0][0] = ref_kopia[0][2][2];
 
-
 }
+
+
 void zmienTabliceKolorow1()
 {
 	ref[1][0][0] = kolor_zew[1][2];
@@ -451,9 +448,9 @@ void zmienTabliceKolorow1()
 }
 
 //funkcja pobiera symbol koloru i zwraca dany Kolor
-const GLfloat* wezKolor(int tab)
+const GLfloat *wezKolor(int tab)
 {
-	const GLfloat* kolor = Brown;
+	const GLfloat *kolor = Brown;
 	switch (tab)
 	{
 	case 0:
@@ -508,9 +505,9 @@ const GLfloat* wezKolor(int tab)
 	}
 	}
 	return kolor;
-};
+}
 
-int  dajKolor(const GLfloat* tab)
+int  dajKolor(const GLfloat *tab)
 {
 	int kolor;
 	if (tab == White)
@@ -528,7 +525,7 @@ int  dajKolor(const GLfloat* tab)
 	else if (tab == Black)
 		kolor = 888;
 	return kolor;
-};
+}
 
 void inicjujKolory(Sciana sciana[6][3][9], int tab[6][9])
 {
@@ -540,15 +537,10 @@ void inicjujKolory(Sciana sciana[6][3][9], int tab[6][9])
 	else if ((j == 1) | (j == 3) | (j == 4))
 		sciana[j][2][i].kolor = wezKolor(tab[j][i]);
 }
-// sta³e do obs³ugi menu podrêcznego
-
-// funkcja rysuj¹ca napis w wybranym miejscu
 
 void DrawString(GLfloat x, GLfloat y, char * string)
 {
-	// po³o¿enie napisu
 	glRasterPos2f(x, y);
-	// wyœwietlenie napisu
 	int len = strlen(string);
 	for (int i = 0; i < len; i++)
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
@@ -562,100 +554,92 @@ void rysujSciane(Sciana scianka)
 	glVertex3f(scianka.pkt[2].x, scianka.pkt[2].y, scianka.pkt[2].z);
 	glVertex3f(scianka.pkt[3].x, scianka.pkt[3].y, scianka.pkt[3].z);
 }
+
 void inicjujWspolrzedne()
 {
 	int j, k, l;
 	for (j = 0; j < 3; j++)
-	for (k = 0; k < 9; k++)
-	for (l = 0; l < 4; l++)
-	{
-		wall[2][j][k].pkt[l].x = wall[0][j][k].pkt[l].z;
-		wall[2][j][k].pkt[l].z = wall[0][j][k].pkt[l].x;
-		wall[2][j][k].pkt[l].y = wall[0][j][k].pkt[l].y;
-		wall[3][j][k].pkt[l].x = wall[1][j][k].pkt[l].z;
-		wall[3][j][k].pkt[l].z = wall[1][j][k].pkt[l].x;
-		wall[3][j][k].pkt[l].y = wall[1][j][k].pkt[l].y;
-		wall[4][j][k].pkt[l].x = wall[1][j][k].pkt[l].x;
-		wall[4][j][k].pkt[l].z = wall[1][j][k].pkt[l].y;
-		wall[4][j][k].pkt[l].y = wall[1][j][k].pkt[l].z;
-		wall[5][j][k].pkt[l].x = wall[0][j][k].pkt[l].x;
-		wall[5][j][k].pkt[l].z = wall[0][j][k].pkt[l].y;
-		wall[5][j][k].pkt[l].y = wall[0][j][k].pkt[l].z;
-	}
+		for (k = 0; k < 9; k++)
+			for (l = 0; l < 4; l++)
+			{
+				wall[2][j][k].pkt[l].x = wall[0][j][k].pkt[l].z;
+				wall[2][j][k].pkt[l].z = wall[0][j][k].pkt[l].x;
+				wall[2][j][k].pkt[l].y = wall[0][j][k].pkt[l].y;
+				wall[3][j][k].pkt[l].x = wall[1][j][k].pkt[l].z;
+				wall[3][j][k].pkt[l].z = wall[1][j][k].pkt[l].x;
+				wall[3][j][k].pkt[l].y = wall[1][j][k].pkt[l].y;
+				wall[4][j][k].pkt[l].x = wall[1][j][k].pkt[l].x;
+				wall[4][j][k].pkt[l].z = wall[1][j][k].pkt[l].y;
+				wall[4][j][k].pkt[l].y = wall[1][j][k].pkt[l].z;
+				wall[5][j][k].pkt[l].x = wall[0][j][k].pkt[l].x;
+				wall[5][j][k].pkt[l].z = wall[0][j][k].pkt[l].y;
+				wall[5][j][k].pkt[l].y = wall[0][j][k].pkt[l].z;
+			}
 }
 
 void rysujKostke()
 {
 	int i, j, k;
 	for (i = 0; i < 6; i++)
-	for (j = 0; j < 3; j++)
-	for (k = 0; k < 9; k++)
-		rysujSciane(wall[i][j][k]);
+		for (j = 0; j < 3; j++)
+			for (k = 0; k < 9; k++)
+				rysujSciane(wall[i][j][k]);
 }
 
 void kopiujKostke()
 {
 	int i, j, k, l;
 	for (i = 0; i < 6; i++)
-	for (j = 0; j < 3; j++)
-	for (k = 0; k < 9; k++)
-	for (l = 0; l < 4; l++)
-	{
-		wall_kopia[i][j][k].pkt[l].x = wall[i][j][k].pkt[l].x;
-		wall_kopia[i][j][k].pkt[l].y = wall[i][j][k].pkt[l].y;
-		wall_kopia[i][j][k].pkt[l].z = wall[i][j][k].pkt[l].z;
-	}
+		for (j = 0; j < 3; j++)
+			for (k = 0; k < 9; k++)
+				for (l = 0; l < 4; l++)
+				{
+					wall_kopia[i][j][k].pkt[l].x = wall[i][j][k].pkt[l].x;
+					wall_kopia[i][j][k].pkt[l].y = wall[i][j][k].pkt[l].y;
+					wall_kopia[i][j][k].pkt[l].z = wall[i][j][k].pkt[l].z;
+				}
 }
 
 void kopiujKostke2()
 {
 	int i, j, k, l;
 	for (i = 0; i < 6; i++)
-	for (j = 0; j < 3; j++)
-	for (k = 0; k < 9; k++)
-	for (l = 0; l < 4; l++)
-	{
-		wall[i][j][k].pkt[l].x = wall_kopia2[i][j][k].pkt[l].x;
-		wall[i][j][k].pkt[l].y = wall_kopia2[i][j][k].pkt[l].y;
-		wall[i][j][k].pkt[l].z = wall_kopia2[i][j][k].pkt[l].z;
-	}
+		for (j = 0; j < 3; j++)
+			for (k = 0; k < 9; k++)
+				for (l = 0; l < 4; l++)
+				{
+					wall[i][j][k].pkt[l].x = wall_kopia2[i][j][k].pkt[l].x;
+					wall[i][j][k].pkt[l].y = wall_kopia2[i][j][k].pkt[l].y;
+					wall[i][j][k].pkt[l].z = wall_kopia2[i][j][k].pkt[l].z;
+				}
 }
 
 void kopiujKostke3()
 {
 	int i, j, k, l;
 	for (i = 0; i < 6; i++)
-	for (j = 0; j < 3; j++)
-	for (k = 0; k < 9; k++)
-	{
-		for (l = 0; l < 4; l++)
-		{
-			wall_kopia2[i][j][k].pkt[l].x = wall[i][j][k].pkt[l].x;
-			wall_kopia2[i][j][k].pkt[l].y = wall[i][j][k].pkt[l].y;
-			wall_kopia2[i][j][k].pkt[l].z = wall[i][j][k].pkt[l].z;
-		}
-		wall_kopia2[i][j][k].kolor = wall[i][j][k].kolor;
-	}
+		for (j = 0; j < 3; j++)
+			for (k = 0; k < 9; k++)
+			{
+				for (l = 0; l < 4; l++)
+				{
+					wall_kopia2[i][j][k].pkt[l].x = wall[i][j][k].pkt[l].x;
+					wall_kopia2[i][j][k].pkt[l].y = wall[i][j][k].pkt[l].y;
+					wall_kopia2[i][j][k].pkt[l].z = wall[i][j][k].pkt[l].z;
+				}
+				wall_kopia2[i][j][k].kolor = wall[i][j][k].kolor;
+			}
 }
 
 void Display()
 {
-	// kolor t³a - zawartoœæ bufora koloru
 	glClearColor(0.35, 0.35, 0.35, 1.0);
-
-	// czyszczenie bufora koloru i bufora g³êbokoœci
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// wybór macierzy modelowania
 	glMatrixMode(GL_MODELVIEW);
-
-	// macierz modelowania = macierz jednostkowa
 	glLoadIdentity();
 
-	// przesuniêcie uk³adu wspó³rzêdnych szeœcianu do œrodka bry³y odcinania
 	glTranslatef(0, 0, -(near + far) / 2);
 
-	// obroty szeœcianu
 	if (menu != 0)
 	{
 		glRotatef(rotatex, 1.0, 0, 0);
@@ -665,28 +649,17 @@ void Display()
 	// niewielkie powiêkszenie szeœcianu
 	glScalef(1.15, 1.15, 1.15);
 
-	// w³¹czenie oœwietlenia
 	glEnable(GL_LIGHTING);
-
-	// parametry globalnego œwiat³a otaczaj¹cego
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
-
-	// w³¹czenie obs³ugi w³aœciwoœci materia³ów
 	glEnable(GL_COLOR_MATERIAL);
-
-	// w³aœciwoœci materia³u okreœlone przez kolor wierzcho³ków
 	glColorMaterial(GL_FRONT, GL_AMBIENT);
-
-	// w³¹czenie testu bufora g³êbokoœci
 	glEnable(GL_DEPTH_TEST);
 
 	// rysowanie szeœcianu - 12 trójk¹tów
 	inicjujKolory(wall, kolor_zew);
 	if (menu != 0){
 		glBegin(GL_QUADS);
-
 		rysujKostke();
-		// koniec definicji szeœcianu
 		glEnd();
 	}
 	else
@@ -708,7 +681,6 @@ void Display()
 		glEnd();
 		glPopMatrix();
 
-		//glTranslatef(0, 1, 0);
 		if (akt1 == 0)
 			glBindTexture(GL_TEXTURE_2D, tekstura[1]);
 		else
@@ -767,10 +739,8 @@ void Display()
 
 
 	}
-	// wy³¹czenie oœwietlenia
-	glDisable(GL_LIGHTING);
 
-	// wy³¹czenie obs³ugi w³aœciwoœci materia³ów
+	glDisable(GL_LIGHTING);
 	glDisable(GL_COLOR_MATERIAL);
 
 	// wyœwietlenie sk³adowych globalnego œwiat³a otaczaj¹cego
@@ -778,62 +748,36 @@ void Display()
 	GLfloat rgba[4];
 	glColor3fv(Black);
 
-	// pobranie wartoœci sk³adowych œwiat³a otaczaj¹cego
-	// (oczywiœcie wartoœci te odpowiadaj¹ tablicy ambient_light)
 	glGetFloatv(GL_LIGHT_MODEL_AMBIENT, rgba);
-	//sprintf( string, "AMBIENT: R=%f G=%f B=%f A=%f", rgba[ 0 ], rgba[ 1 ], rgba[ 2 ], rgba[ 3 ] );
-	//sprintf(string, "Sterowanie: q-w a-s z-x////e-r d-f c-v ///t-y g-h b-n Rozwiazanie  'm'///mieszanie 'o'");
-	// trzeba odpowiednio przekszta³ciæ uk³ad wspó³rzêdnych
-	// aby napis znajdowa³ siê na samej "górze" bry³y obcinania
+
 	glLoadIdentity();
 	glTranslatef(0, 0, -near);
-
 	// narysowanie napisu
 	DrawString(left, bottom + 1, string);
 
-	// skierowanie poleceñ do wykonania
-	//glFlush();
-
-	// zamiana buforów koloru
 	glutSwapBuffers();
 }
 
-// zmiana wielkoœci okna
-
 void Reshape(int width, int height)
 {
-	// obszar renderingu - ca³e okno
 	glViewport(0, 0, width, height);
-
-	// wybór macierzy rzutowania
 	glMatrixMode(GL_PROJECTION);
-
-	// macierz rzutowania = macierz jednostkowa
 	glLoadIdentity();
-
-	// parametry bry³y obcinania
 	if (aspect == ASPECT_1_1)
 	{
-		// wysokoœæ okna wiêksza od wysokoœci okna
 		if (width < height && width > 0)
 			glFrustum(left, right, bottom * height / width, top * height / width, near, far);
 		else
-			// szerokoœæ okna wiêksza lub równa wysokoœci okna
-		if (width >= height && height > 0)
-			glFrustum(left * width / height, right * width / height, bottom, top, near, far);
-
+			if (width >= height && height > 0)
+				glFrustum(left * width / height, right * width / height, bottom, top, near, far);
 	}
 	else
 		glFrustum(left, right, bottom, top, near, far);
-
-	// generowanie sceny 3D
 	Display();
 }
 
 void pokazKolory(int tablica[6][3][3])
 {
-
-	//int j,k,l=2,r=2,w=2;
 	printf("          [%d]", dajKolor(wall[5][0][2].kolor));
 	printf("[%d]", dajKolor(wall[5][0][1].kolor));
 	printf("[%d]\n", dajKolor(wall[5][0][0].kolor));
@@ -903,8 +847,6 @@ void pokazKolory(int tablica[6][3][3])
 void transformacja(int ref[6][3][3])
 {
 	zmienTabliceKolorow1();
-	//pokazKolory(ref);
-	//printf("transformacja\n");
 }
 void qfunkcja(unsigned char key)
 {
@@ -965,10 +907,6 @@ void wfunkcja(unsigned char key)
 	kolor_zew[3][8] = kolor_zew_kopia[4][2];
 	kolor_zew[3][5] = kolor_zew_kopia[4][1];
 	kolor_zew[3][2] = kolor_zew_kopia[4][0];
-
-	//kolor_zew[6][9]
-
-	//printf("lalala");
 
 	Display();
 	transformacja(ref);
@@ -2206,7 +2144,7 @@ void ostatniaPermutacja(Sciana sciana[6][3][9])
 		}
 		else if ((n0 == 1)&(b2 == 1))
 		{
-			printf("2 zle po przekotnej \n");
+			printf("2 zle po przekatnej \n");
 			zfunkcja('z');
 			bfunkcja('b');
 			xfunkcja('x');
@@ -2255,7 +2193,6 @@ void Keyboard(unsigned char key, int x, int y)
 		slip = 0;
 		for (licznik = 0; licznik < 25; licznik++)
 		{
-			// printf("ITERACJA %d",licznik);
 			los = (rand() % 18);
 			switch (los)
 			{
@@ -2408,7 +2345,6 @@ void Keyboard(unsigned char key, int x, int y)
 		zoltyKrzyz(wall);
 		slip = 12;
 	}
-
 	if (key == '6')
 	{
 		slip = 6;
@@ -2427,142 +2363,93 @@ void Keyboard(unsigned char key, int x, int y)
 		ostatniaPermutacja(wall);
 		slip = 12;
 	}
-
 	if (key == 'q')
-	{
 		qfunkcja(key);
-	}
-
 	if (key == 'w')
-	{
 		wfunkcja(key);
-	}
 	///
 	if (key == 's')
-	{
 		sfunkcja(key);
-	}
 	///
-
 	if (key == 27)
 	{
 		menu = 0;
 		Display();
 	}
 	if (key == 'a')
-	{
 		afunkcja(key);
-	}
 	///
-
 	if (key == 'z')
-	{
 		zfunkcja(key);
-	}
 	if (key == 'x')
-	{
 		xfunkcja(key);
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (key == 'r')
-	{
 		rfunkcja(key);
 
-	}
 	if (key == 'e')
-	{
 		efunkcja(key);
-	}
 	///
 	if (key == 'f')
-	{
 		ffunkcja(key);
-	}
 	///
 	if (key == 'd')
-	{
 		dfunkcja(key);
-	}
 	///
 
 	if (key == 'v')
-	{
 		vfunkcja(key);
-	}
 	if (key == 'c')
-	{
 		cfunkcja(key);
-	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (key == 't')
-	{
 		tfunkcja(key);
-	}
 	////
 	if (key == 'y')
-	{
 		yfunkcja(key);
-	}
 	////
 	if (key == 'g')
-	{
 		gfunkcja(key);
-
-	}
 	////
 	if (key == 'h')
-	{
 		hfunkcja(key);
-	}
 	////
 	if (key == 'b')
-	{
 		bfunkcja(key);
-	}
 	////
 	if (key == 'n')
-	{
 		nfunkcja(key);
-	}
 }
-
-// obs³uga klawiszy funkcyjnych i klawiszy kursora
 
 void SpecialKeys(int key, int x, int y)
 {
 	switch (key)
 	{
-		// kursor w lewo
 	case GLUT_KEY_LEFT:
 		rotatey -= 2;
 		break;
 
-		// kursor w górê
 	case GLUT_KEY_UP:
 		rotatex -= 2;
 		break;
 
-		// kursor w prawo
 	case GLUT_KEY_RIGHT:
 		rotatey += 2;
 		break;
 
-		// kursor w dó³
 	case GLUT_KEY_DOWN:
 		rotatex += 2;
 		break;
+
 	case GLUT_KEY_F2:
 		rotatez += 2;
 		break;
 
-		// kursor w dó³
 	case GLUT_KEY_F3:
 		rotatez -= 2;
 		break;
 	}
 
-	// odrysowanie okna
 	Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 }
 
@@ -2574,9 +2461,7 @@ void MouseButton(int button, int state, int x, int y)
 	if ((button == GLUT_LEFT_BUTTON)&(x > przycisk1x)&(x<przycisk1x + szer)&(y>przycisk1y)&(y < przycisk1y + wys)&(menu == 0))
 	{
 		if ((state == GLUT_UP)&(akt1 == 1))
-		{
 			menu = 1;
-		}
 		Display();
 	}
 	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk2x)&(x<przycisk2x + szer)&(y>przycisk2y)&(y < przycisk2y + wys)&(menu == 0))
@@ -2590,32 +2475,25 @@ void MouseButton(int button, int state, int x, int y)
 	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk3x)&(x<przycisk3x + szer)&(y>przycisk3y)&(y < przycisk3y + wys)&(menu == 0))
 	{
 		if (state == GLUT_UP)
-		{
 			exit(0);
-		}
 	}
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		// zapamiêtanie stanu lewego przycisku myszki
 		button_state = state;
-
 		// zapamiêtanie po³o¿enia kursora myszki
 		if (state == GLUT_DOWN)
 		{
 			button_x = x;
 			button_y = y;
 		}
-
 	}
-
 }
 
 // obs³uga ruchu kursora myszki
 
 void MouseMotion(int x, int y)
 {
-
-
 	if ((button_state == GLUT_DOWN)&(menu != 0))
 	{
 		printf("%f,%f\n", rotatex, rotatey);
@@ -2626,6 +2504,7 @@ void MouseMotion(int x, int y)
 		glutPostRedisplay();
 	}
 }
+
 void MousePassiveMotion(int x, int y)
 {
 
@@ -2660,25 +2539,21 @@ void MousePassiveMotion(int x, int y)
 		Display();
 	}
 }
-// obs³uga menu podrêcznego
 
 void Menu(int value)
 {
 	switch (value)
 	{
-		// obszar renderingu - ca³e okno
 	case FULL_WINDOW:
 		aspect = FULL_WINDOW;
 		Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		break;
 
-		// obszar renderingu - aspekt 1:1
 	case ASPECT_1_1:
 		aspect = ASPECT_1_1;
 		Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		break;
 
-		// wyjœcie
 	case EXIT:
 		exit(0);
 	}
@@ -2691,34 +2566,22 @@ int main(int argc, char * argv[])
 	akt2 = 0;
 	akt3 = 0;
 	int j, k;
-	srand(time(NULL));
-	// inicjalizacja biblioteki GLUT
+	srand(time(0));
+
 	for (j = 0; j < 6; j++)
-
-	{
-
 		for (k = 0; k < 9; k++)
-		{
-
 			kolor_zew[j][k] = j;
-
-		}
-	}
 	glutInit(&argc, argv);
 
-	// inicjalizacja bufora ramki
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-	// rozmiary g³ównego okna programu
 	glutInitWindowSize(800, 800);
 	inicjujWspolrzedne();
 	inicjujKolory(wall, kolor_zew);
-	// utworzenie g³ównego okna programu
-#ifdef WIN32
 
+#ifdef WIN32
 	glutCreateWindow("Globalne światło otaczające");
 #else
-
 	glutCreateWindow("Globalne swiatlo otaczajace");
 #endif
 
@@ -2744,20 +2607,9 @@ int main(int argc, char * argv[])
 	glBindTexture(GL_TEXTURE_2D, tekstura[6]);
 	LoadTGATexture("wyjscie_on.tga");
 
-
-
-	//LoadTGATexture("start.tga");
-
-	// do³¹czenie funkcji generuj¹cej scenê 3D
 	glutDisplayFunc(Display);
-
-	// do³¹czenie funkcji wywo³ywanej przy zmianie rozmiaru okna
 	glutReshapeFunc(Reshape);
-
-	// do³¹czenie funkcji obs³ugi klawiatury
 	glutKeyboardFunc(Keyboard);
-
-	// do³¹czenie funkcji obs³ugi klawiszy funkcyjnych i klawiszy kursora
 	glutSpecialFunc(SpecialKeys);
 
 	// obs³uga przycisków myszki
@@ -2769,36 +2621,28 @@ int main(int argc, char * argv[])
 	// obs³uga ruchu kursora myszki
 	glutPassiveMotionFunc(MousePassiveMotion);
 
-	// utworzenie menu podrêcznego
 	glutCreateMenu(Menu);
 
-	// utworzenie podmenu - aspekt obrazu
 	int MenuAspect = glutCreateMenu(Menu);
-#ifdef WIN32
 
+#ifdef WIN32
 	glutAddMenuEntry("Aspekt obrazu - całe okno", FULL_WINDOW);
 #else
-
 	glutAddMenuEntry("Aspekt obrazu - cale okno", FULL_WINDOW);
 #endif
 
 	glutAddMenuEntry("Aspekt obrazu 1:1", ASPECT_1_1);
-
-	// menu g³ówne
 	glutCreateMenu(Menu);
 	glutAddSubMenu("Aspekt obrazu", MenuAspect);
-#ifdef WIN32
 
+#ifdef WIN32
 	glutAddMenuEntry("Wyjście", EXIT);
 #else
-
 	glutAddMenuEntry("Wyjscie", EXIT);
 #endif
 
-	// okreœlenie przycisku myszki obs³uguj¹cej menu podrêczne
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-	// wprowadzenie programu do obs³ugi pêtli komunikatów
 	glutMainLoop();
 	glDeleteTextures(7, tekstura);
 	return 0;
