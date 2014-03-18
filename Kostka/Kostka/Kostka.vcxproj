@@ -86,6 +86,17 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="targa.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="menu.bmp" />
+    <Image Include="menu.tga" />
+    <Image Include="opcje.tga" />
+    <Image Include="opcje_on.tga" />
+    <Image Include="start.tga" />
+    <Image Include="start_on.tga" />
+    <Image Include="tex0.tga" />
+    <Image Include="wyjscie.tga" />
+    <Image Include="wyjscie_on.tga" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

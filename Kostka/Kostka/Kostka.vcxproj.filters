@@ -33,4 +33,17 @@
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="menu.tga" />
+    <Image Include="menu.bmp">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="opcje.tga" />
+    <Image Include="opcje_on.tga" />
+    <Image Include="start.tga" />
+    <Image Include="start_on.tga" />
+    <Image Include="tex0.tga" />
+    <Image Include="wyjscie.tga" />
+    <Image Include="wyjscie_on.tga" />
+  </ItemGroup>
 </Project>
