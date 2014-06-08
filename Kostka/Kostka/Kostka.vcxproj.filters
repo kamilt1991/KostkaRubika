@@ -45,5 +45,27 @@
     <Image Include="tex0.tga" />
     <Image Include="wyjscie.tga" />
     <Image Include="wyjscie_on.tga" />
+    <Image Include="dzwiek.tga" />
+    <Image Include="dzwiek_menu.tga" />
+    <Image Include="dzwiek_on.tga" />
+    <Image Include="gratulacje.tga" />
+    <Image Include="latwy.tga" />
+    <Image Include="latwy_on.tga" />
+    <Image Include="opcje_menu.tga" />
+    <Image Include="powrot.tga" />
+    <Image Include="powrot_on.tga" />
+    <Image Include="poziom.tga" />
+    <Image Include="poziom_menu.tga" />
+    <Image Include="poziom_on.tga" />
+    <Image Include="trudny.tga" />
+    <Image Include="trudny_on.tga" />
+    <Image Include="wlaczone.tga" />
+    <Image Include="wlaczone_on.tga" />
+    <Image Include="wylaczone.tga" />
+    <Image Include="wylaczone_on.tga" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment.cg" />
+    <None Include="vertex.cg" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>

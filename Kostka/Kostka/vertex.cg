@@ -1,0 +1,22 @@
+ void main(		float4 pozycja    	: POSITION,
+                float4 kolorr        : COLOR,
+                float2 Koordynaty  : TEXCOORD0,
+            out float4 oPozycja    : POSITION,
+            out float4 oKolor       : COLOR,
+            out float2 oKoordynaty : TEXCOORD0,
+            out float  wyklMgly  : TEXCOORD1,
+
+        uniform float    gestoscMgly, 
+        uniform float4x4 modelViewProj,
+        uniform float4x4 modelView)
+{
+  float3 okoPoz= mul(modelView, pozycja).xyz;
+  float mglaOdl = length(okoPoz);
+  if (mglaOdl < 1000) gestoscMgly /= 1.95;
+  if (mglaOdl > 1200) mglaOdl *= 1.1;
+  wyklMgly  		= mglaOdl * gestoscMgly;
+  oPozycja   		= mul(modelViewProj, pozycja);
+  oKoordynaty.x 	= Koordynaty.x;
+  oKoordynaty.y		= Koordynaty.y;
+  oKolor      		= kolorr;
+}

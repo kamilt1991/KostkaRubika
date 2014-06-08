@@ -1,0 +1,16 @@
+void main(     float2 texKoord    : TEXCOORD0,
+               float  mglaa : TEXCOORD1,
+               float4 kolorr       : COLOR,
+
+           out float4 oKolor : COLOR,
+
+       uniform sampler2D decal,
+       uniform float3 kolorMgly)
+{
+  float czynnikMgly   = exp(-abs(mglaa));
+  float4 decalKolor = tex2D(decal, texKoord);
+  float4 texKolor   = kolorr * decalKolor;
+
+  oKolor.xyz = lerp(kolorMgly, texKolor.xyz,czynnikMgly);
+  oKolor.w = kolorr.w;
+}

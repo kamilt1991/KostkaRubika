@@ -1,5 +1,68 @@
-﻿#include "main.h"
-#include "targa.h"
+﻿#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS
+#include "main.h"
+
+void init() {
+	//inicjalizacja shadera
+	if (!(cgContext = cgCreateContext())){
+		printf("Nie można utworzyć kontekstu Cg!");
+		getchar();
+		exit(1);
+	}
+
+
+	//ustawienie fragment shadera
+	cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+	cgGLSetOptimalOptions(cgFragmentProfile);
+	if (cgFragmentProfile == CG_PROFILE_UNKNOWN){
+		printf("Nie mozna zaladowac profilu Fragment Shadera!");
+		getchar();
+		exit(2);
+	}
+
+	//ustawienie vertex shadera
+	cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
+	cgGLSetOptimalOptions(cgVertexProfile);
+	if (cgVertexProfile == CG_PROFILE_UNKNOWN){
+		printf("Nie mozna zaladowac profilu Vertex Shadera!");
+		getchar();
+		exit(3);
+	}
+
+
+	//utworzenie programu fragment shadera
+	cgFragmentProgram = cgCreateProgramFromFile(cgContext, CG_SOURCE, "fragment.cg", cgFragmentProfile, "main", 0);
+	if (!cgFragmentProgram) {
+		getchar();
+		exit(4);
+	}
+
+	cgGLLoadProgram(cgFragmentProgram);
+
+	//utworzenie programu vertex shadera
+	cgVertexProgram = cgCreateProgramFromFile(cgContext, CG_SOURCE, "vertex.cg", cgVertexProfile, "main", 0);
+	if (!cgVertexProgram)
+		exit(5);
+
+	cgGLLoadProgram(cgVertexProgram);
+
+	//ustawienie zmiennych
+	cgModelViewMatrixProj = cgGetNamedParameter(cgVertexProgram, "modelViewProj");
+	cgModelViewMatrix = cgGetNamedParameter(cgVertexProgram, "modelView");
+	cgPosition = cgGetNamedParameter(cgVertexProgram, "pozycja");
+	cgColor = cgGetNamedParameter(cgVertexProgram, "kolorr");
+	cgFogColor = cgGetNamedParameter(cgFragmentProgram, "kolorMgly");
+	cgFogDensity = cgGetNamedParameter(cgVertexProgram, "gestoscMgly");
+
+	puts("--Pomyslnie zainicjalizowano shadery--");
+
+	glEnable(GL_FRAGMENT_PROGRAM_ARB);
+
+	//wlaczenie funkcji z rozszerzeniami tekstur do obslugi shaderow
+	//glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)
+	//	wglGetProcAddress("glActiveTextureARB");
+}
+
 void licz(int mnoznik, char znak)
 {
 	int licznikobrotu;
@@ -455,53 +518,53 @@ const GLfloat *wezKolor(int tab)
 	{
 	case 0:
 	{
-			  kolor = White;
-			  break;
+		kolor = White;
+		break;
 	}
 	case 1:
 	{
-			  kolor = Yellow;
-			  break;
+		kolor = Yellow;
+		break;
 	}
 	case 2:
 	{
-			  kolor = Green;
-			  break;
+		kolor = Green;
+		break;
 	}
 	case 3:
 	{
-			  kolor = Blue;
-			  break;
+		kolor = Blue;
+		break;
 	}
 	case 4:
 	{
-			  kolor = Orange;
-			  break;
+		kolor = Orange;
+		break;
 	}
 	case 5:
 	{
-			  kolor = Red;
-			  break;
+		kolor = Red;
+		break;
 	}
 	case 6:
 	{
-			  kolor = Purple;
-			  break;
+		kolor = Purple;
+		break;
 	}
 	case 7:
 	{
-			  kolor = Pink;
-			  break;
+		kolor = Pink;
+		break;
 	}
 	case 8:
 	{
-			  kolor = Silver;
-			  break;
+		kolor = Silver;
+		break;
 	}
 	case 9:
 	{
-			  kolor = Brown;
-			  break;
+		kolor = Brown;
+		break;
 	}
 	}
 	return kolor;
@@ -531,21 +594,14 @@ void inicjujKolory(Sciana sciana[6][3][9], int tab[6][9])
 {
 	int i, j;
 	for (i = 0; i < 9; i++)
-	for (j = 0; j < 6; j++)
-	if ((j == 0) | (j == 2) | (j == 5))
-		sciana[j][0][i].kolor = wezKolor(tab[j][i]);
-	else if ((j == 1) | (j == 3) | (j == 4))
-		sciana[j][2][i].kolor = wezKolor(tab[j][i]);
+		for (j = 0; j < 6; j++)
+			if ((j == 0) | (j == 2) | (j == 5))
+				sciana[j][0][i].kolor = wezKolor(tab[j][i]);
+			else if ((j == 1) | (j == 3) | (j == 4))
+				sciana[j][2][i].kolor = wezKolor(tab[j][i]);
 }
 
-void DrawString(GLfloat x, GLfloat y, char * string)
-{
-	glRasterPos2f(x, y);
-	int len = strlen(string);
-	for (int i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
-}
-// funkcja generuj¹ca scenê 3D
+// funkcja generuj1ca scene 3D
 void rysujSciane(Sciana scianka)
 {
 	glColor3fv(scianka.kolor);
@@ -633,37 +689,78 @@ void kopiujKostke3()
 
 void Display()
 {
+	cgGLEnableProfile(cgVertexProfile);
+	cgGLEnableProfile(cgFragmentProfile);
+	cgGLBindProgram(cgVertexProgram);
+	cgGLBindProgram(cgFragmentProgram);
+
 	glClearColor(0.35, 0.35, 0.35, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 	glTranslatef(0, 0, -(near + far) / 2);
-
-	if (menu != 0)
+	if (menu == 1)
 	{
 		glRotatef(rotatex, 1.0, 0, 0);
 		glRotatef(rotatey, 0, 1.0, 0);
 		glRotatef(rotatez, 0, 0, 1.0);
 	}
-	// niewielkie powiêkszenie szeœcianu
+	// niewielkie powiekszenie szeocianu
 	glScalef(1.15, 1.15, 1.15);
 
-	glEnable(GL_LIGHTING);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
-	glEnable(GL_COLOR_MATERIAL);
-	glColorMaterial(GL_FRONT, GL_AMBIENT);
-	glEnable(GL_DEPTH_TEST);
-
-	// rysowanie szeœcianu - 12 trójk¹tów
+	// rysowanie szeocianu - 12 trójk1tów
 	inicjujKolory(wall, kolor_zew);
-	if (menu != 0){
+	/////////
+	if (gratulacje == 1)
+	{
+		cgGLDisableProfile(cgVertexProfile);
+		cgGLDisableProfile(cgFragmentProfile);
+		glDisable(GL_TEXTURE_1D);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		glBindTexture(GL_TEXTURE_2D, tekstura[24]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-8, graty2, 5.9);
+		glTexCoord2f(0, 1);
+		glVertex3f(-8, graty1, 5.9);
+		glTexCoord2f(1, 1);
+		glVertex3f(8, graty1, 5.9);
+		glTexCoord2f(1, 0);
+		glVertex3f(8, graty2, 5.9);
+		glEnd();
+		glPopMatrix();
+
+
+	}
+	/////////
+	if (menu == 1)
+	{
+		cgGLEnableProfile(cgVertexProfile);
+		cgGLEnableProfile(cgFragmentProfile);
+
+		//Wlaczenie programow Cg
+		cgGLBindProgram(cgVertexProgram);
+		cgGLBindProgram(cgFragmentProgram);
+
+		//Przekazanie zmiennych do shadera
+		cgGLSetParameter3f(cgPosition, 0, 0, 28);
+		//cgGLSetParameter3f(cgColor,1.0,0.0,0.0);
+		cgGLSetStateMatrixParameter(cgModelViewMatrix, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+		cgGLSetStateMatrixParameter(cgModelViewMatrixProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+		cgGLSetParameter3f(cgFogColor, 0, 0, 1);
+		cgGLSetParameter1f(cgFogDensity, Density);
+		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
 		rysujKostke();
 		glEnd();
 	}
-	else
+	else if (menu == 0)
 	{
+		cgGLDisableProfile(cgVertexProfile);
+		cgGLDisableProfile(cgFragmentProfile);
+		
 		glDisable(GL_TEXTURE_1D);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -739,12 +836,254 @@ void Display()
 
 
 	}
+	else if (menu == 2)
+	{
+		cgGLDisableProfile(cgVertexProfile);
+		cgGLDisableProfile(cgFragmentProfile);
+		glDisable(GL_TEXTURE_1D);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		glBindTexture(GL_TEXTURE_2D, tekstura[7]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-8, -8, 5.9);
+		glTexCoord2f(0, 1);
+		glVertex3f(-8, 8, 5.9);
+		glTexCoord2f(1, 1);
+		glVertex3f(8, 8, 5.9);
+		glTexCoord2f(1, 0);
+		glVertex3f(8, -8, 5.9);
+		glEnd();
+		glPopMatrix();
 
+		////////start
+		if (akt4 == 0)
+			glBindTexture(GL_TEXTURE_2D, tekstura[8]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[9]);
+		glPushMatrix();
+		glTranslatef(0, 1.5, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if (akt5 == 0)
+			glBindTexture(GL_TEXTURE_2D, tekstura[10]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[11]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if (akt6 == 0)
+			glBindTexture(GL_TEXTURE_2D, tekstura[12]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[13]);
+
+		glPushMatrix();
+		glTranslatef(0, -1.5, 0);
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
+
+		//////// stop
+	}
+	else if (menu == 3)
+	{
+		cgGLDisableProfile(cgVertexProfile);
+		cgGLDisableProfile(cgFragmentProfile);
+		glDisable(GL_TEXTURE_1D);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		glBindTexture(GL_TEXTURE_2D, tekstura[14]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-8, -8, 5.9);
+		glTexCoord2f(0, 1);
+		glVertex3f(-8, 8, 5.9);
+		glTexCoord2f(1, 1);
+		glVertex3f(8, 8, 5.9);
+		glTexCoord2f(1, 0);
+		glVertex3f(8, -8, 5.9);
+		glEnd();
+		glPopMatrix();
+
+		////////start
+		if ((akt7 == 1) | (menu_dzwieki == 0))
+			glBindTexture(GL_TEXTURE_2D, tekstura[17]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[16]);
+		glPushMatrix();
+		glTranslatef(0, 1.5, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if ((akt8 == 1) | (menu_dzwieki == 1))
+			glBindTexture(GL_TEXTURE_2D, tekstura[19]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[18]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if (akt9 == 0)
+			glBindTexture(GL_TEXTURE_2D, tekstura[12]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[13]);
+
+		glPushMatrix();
+		glTranslatef(0, -1.5, 0);
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
+
+		//////// stop
+	}
+
+	else if (menu == 4)
+	{
+		cgGLDisableProfile(cgVertexProfile);
+		cgGLDisableProfile(cgFragmentProfile);
+		glDisable(GL_TEXTURE_1D);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		glBindTexture(GL_TEXTURE_2D, tekstura[15]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-8, -8, 5.9);
+		glTexCoord2f(0, 1);
+		glVertex3f(-8, 8, 5.9);
+		glTexCoord2f(1, 1);
+		glVertex3f(8, 8, 5.9);
+		glTexCoord2f(1, 0);
+		glVertex3f(8, -8, 5.9);
+		glEnd();
+		glPopMatrix();
+
+		////////start
+		if ((akt10 == 1) | (menu_latwy == 0))
+			glBindTexture(GL_TEXTURE_2D, tekstura[21]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[20]);
+		glPushMatrix();
+		glTranslatef(0, 1.5, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if ((akt11 == 1) | (menu_latwy == 1))
+			glBindTexture(GL_TEXTURE_2D, tekstura[23]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[22]);
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+
+		if (akt12 == 0)
+			glBindTexture(GL_TEXTURE_2D, tekstura[12]);
+		else
+			glBindTexture(GL_TEXTURE_2D, tekstura[13]);
+
+		glPushMatrix();
+		glTranslatef(0, -1.5, 0);
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0, 0);
+		glVertex3f(-1.6, -0.5, 6);
+		glTexCoord2f(0, 1);
+		glVertex3f(-1.6, 0.5, 6);
+		glTexCoord2f(1, 1);
+		glVertex3f(1.6, 0.5, 6);
+		glTexCoord2f(1, 0);
+		glVertex3f(1.6, -0.5, 6);
+		glEnd();
+		glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
+
+		//////// stop
+	}
 	glDisable(GL_LIGHTING);
 	glDisable(GL_COLOR_MATERIAL);
 
-	// wyœwietlenie sk³adowych globalnego œwiat³a otaczaj¹cego
-	char string[100];
+	// wyowietlenie sk3adowych globalnego owiat3a otaczaj1cego
 	GLfloat rgba[4];
 	glColor3fv(Black);
 
@@ -753,7 +1092,6 @@ void Display()
 	glLoadIdentity();
 	glTranslatef(0, 0, -near);
 	// narysowanie napisu
-	DrawString(left, bottom + 1, string);
 
 	glutSwapBuffers();
 }
@@ -767,87 +1105,20 @@ void Reshape(int width, int height)
 	{
 		if (width < height && width > 0)
 			glFrustum(left, right, bottom * height / width, top * height / width, near, far);
-		else
-			if (width >= height && height > 0)
-				glFrustum(left * width / height, right * width / height, bottom, top, near, far);
+		else if (width >= height && height > 0)
+			glFrustum(left * width / height, right * width / height, bottom, top, near, far);
 	}
 	else
 		glFrustum(left, right, bottom, top, near, far);
 	Display();
 }
 
-void pokazKolory(int tablica[6][3][3])
-{
-	printf("          [%d]", dajKolor(wall[5][0][2].kolor));
-	printf("[%d]", dajKolor(wall[5][0][1].kolor));
-	printf("[%d]\n", dajKolor(wall[5][0][0].kolor));
-	printf("          [%d]", dajKolor(wall[5][0][5].kolor));
-	printf("[%d]", dajKolor(wall[5][0][4].kolor));
-	printf("[%d]\n", dajKolor(wall[5][0][3].kolor));
-	printf("          [%d]", dajKolor(wall[5][0][8].kolor));
-	printf("[%d]", dajKolor(wall[5][0][7].kolor));
-	printf("[%d]", dajKolor(wall[5][0][6].kolor));
-	printf("\n");
-	printf("\n");
-
-	printf("[%d]", dajKolor(wall[2][0][2].kolor));
-	printf("[%d]", dajKolor(wall[2][0][1].kolor));
-	printf("[%d]", dajKolor(wall[2][0][0].kolor));
-	printf(" [%d]", dajKolor(wall[1][2][2].kolor));
-	printf("[%d]", dajKolor(wall[1][2][1].kolor));
-	printf("[%d]", dajKolor(wall[1][2][0].kolor));
-	printf(" [%d]", dajKolor(wall[3][2][0].kolor));
-	printf("[%d]", dajKolor(wall[3][2][1].kolor));
-	printf("[%d]", dajKolor(wall[3][2][2].kolor));
-	printf(" [%d]", dajKolor(wall[0][0][0].kolor));
-	printf("[%d]", dajKolor(wall[0][0][1].kolor));
-	printf("[%d]\n", dajKolor(wall[0][0][2].kolor));
-
-	printf("[%d]", dajKolor(wall[2][0][5].kolor));
-	printf("[%d]", dajKolor(wall[2][0][4].kolor));
-	printf("[%d]", dajKolor(wall[2][0][3].kolor));
-	printf(" [%d]", dajKolor(wall[1][2][5].kolor));
-	printf("[%d]", dajKolor(wall[1][2][4].kolor));
-	printf("[%d]", dajKolor(wall[1][2][3].kolor));
-	printf(" [%d]", dajKolor(wall[3][2][3].kolor));
-	printf("[%d]", dajKolor(wall[3][2][4].kolor));
-	printf("[%d]", dajKolor(wall[3][2][5].kolor));
-	printf(" [%d]", dajKolor(wall[0][0][3].kolor));
-	printf("[%d]", dajKolor(wall[0][0][4].kolor));
-	printf("[%d]\n", dajKolor(wall[0][0][5].kolor));
-
-	printf("[%d]", dajKolor(wall[2][0][8].kolor));
-	printf("[%d]", dajKolor(wall[2][0][7].kolor));
-	printf("[%d]", dajKolor(wall[2][0][6].kolor));
-	printf(" [%d]", dajKolor(wall[1][2][8].kolor));
-	printf("[%d]", dajKolor(wall[1][2][7].kolor));
-	printf("[%d]", dajKolor(wall[1][2][6].kolor));
-	printf(" [%d]", dajKolor(wall[3][2][6].kolor));
-	printf("[%d]", dajKolor(wall[3][2][7].kolor));
-	printf("[%d]", dajKolor(wall[3][2][8].kolor));
-	printf(" [%d]", dajKolor(wall[0][0][6].kolor));
-	printf("[%d]", dajKolor(wall[0][0][7].kolor));
-	printf("[%d]\n", dajKolor(wall[0][0][8].kolor));
-
-	printf("\n");
-	printf("          [%d]", dajKolor(wall[4][2][8].kolor));
-	printf("[%d]", dajKolor(wall[4][2][7].kolor));
-	printf("[%d]\n", dajKolor(wall[4][2][6].kolor));
-	printf("          [%d]", dajKolor(wall[4][2][5].kolor));
-	printf("[%d]", dajKolor(wall[4][2][4].kolor));
-	printf("[%d]\n", dajKolor(wall[4][2][3].kolor));
-	printf("          [%d]", dajKolor(wall[4][2][2].kolor));
-	printf("[%d]", dajKolor(wall[4][2][1].kolor));
-	printf("[%d]", dajKolor(wall[4][2][0].kolor));
-
-	printf("\n***************************************************\n");
-
-}
-// obs³uga klawiatury
+// obs3uga klawiatury
 void transformacja(int ref[6][3][3])
 {
 	zmienTabliceKolorow1();
 }
+
 void qfunkcja(unsigned char key)
 {
 	kopiujKostke3();
@@ -1368,38 +1639,37 @@ void szukajBialej(Sciana sciana[6][3][9])
 
 			if (tasciana == 1)
 			{
-				// printf("Biala sciana to: %d\n",i);
 				switch (i)
 				{
 				case 0:
 				{
-						  ffunkcja('f');
-						  break;
+					ffunkcja('f');
+					break;
 				}
 				case 1:
 				{
-						  dfunkcja('d');
-						  break;
+					dfunkcja('d');
+					break;
 				}
 				case 2:
 				{
-						  afunkcja('a');
-						  break;
+					afunkcja('a');
+					break;
 				}
 				case 3:
 				{
-						  sfunkcja('s');
-						  break;
+					sfunkcja('s');
+					break;
 				}
 				case 4:
 				{
-						  sfunkcja('s');
-						  sfunkcja('s');
-						  break;
+					sfunkcja('s');
+					sfunkcja('s');
+					break;
 				}
 				case 5:
 				{
-						  break;
+					break;
 				}
 				}
 
@@ -1557,9 +1827,9 @@ void naroznikiBialej(Sciana sciana[6][3][9])
 	{
 		//licznikpetli++;
 
-		printf("%d,%d,%d,%d,%d,%d\n", dajKolor(sciana[1][2][1].kolor), dajKolor(sciana[1][2][0].kolor),
+		dajKolor(sciana[1][2][1].kolor), dajKolor(sciana[1][2][0].kolor),
 			dajKolor(sciana[5][0][7].kolor), dajKolor(sciana[5][0][6].kolor),
-			dajKolor(sciana[3][2][1].kolor), dajKolor(sciana[3][2][0].kolor));
+			dajKolor(sciana[3][2][1].kolor), dajKolor(sciana[3][2][0].kolor);
 		next = 0;
 		if ((dajKolor(sciana[1][2][1].kolor) == dajKolor(sciana[1][2][0].kolor))&
 			(dajKolor(sciana[5][0][7].kolor) == dajKolor(sciana[5][0][6].kolor))&
@@ -1643,7 +1913,6 @@ void naroznikiBialej(Sciana sciana[6][3][9])
 				else
 				{
 					bfunkcja('b');
-					printf("next %d\n", next);
 					szukam++;
 				}
 			}
@@ -1704,10 +1973,8 @@ void drugaWarstwa2(Sciana sciana[6][3][9])
 	{
 		licznik = 0;
 		mam = 0;
-		printf("petla1\n");
 		while (!((z1 == z4)&(c7 == c4)))
 		{
-			printf("petla2\n");
 
 			if (((z4 == z3)&(n3 == c4)) | ((z4 == c7)&(z1 == c4)))
 			{
@@ -1719,7 +1986,6 @@ void drugaWarstwa2(Sciana sciana[6][3][9])
 				zfunkcja('z');
 				vfunkcja('v');
 				xfunkcja('x');
-				printf("war1\n");
 
 				mam = 1;
 			}
@@ -1733,7 +1999,6 @@ void drugaWarstwa2(Sciana sciana[6][3][9])
 				xfunkcja('x');
 				cfunkcja('c');
 				zfunkcja('z');
-				printf("war2\n");
 				mam = 1;
 			}
 			else if ((z4 == n3)&(z3 == c4))
@@ -1750,14 +2015,12 @@ void drugaWarstwa2(Sciana sciana[6][3][9])
 				zfunkcja('z');
 				efunkcja('e');
 				dfunkcja('d');
-				printf("war3\n");
 				mam = 1;
 			}
 			else if ((z4 == n3)&(z3 == p4))
 			{
 				efunkcja('e');
 				dfunkcja('d');
-				printf("war4\n");
 				mam = 1;
 			}
 			if (mam == 1)
@@ -1769,7 +2032,6 @@ void drugaWarstwa2(Sciana sciana[6][3][9])
 			{
 				vfunkcja('v');
 				licznik++;
-				printf("licznik %d\n", licznik);
 			}
 
 			if (licznik == 4)
@@ -1866,7 +2128,6 @@ void zoltyKrzyz(Sciana sciana[6][3][9])
 		if ((c1 == 1)&(c7 == 1))
 		{
 			tfunkcja('t');
-			printf("HOPHOP \n");
 
 		}
 		if (((c1 != 1)&(c3 != 1)&(c7 != 1)&(c5 != 1)) | ((c5 == 1)&(c3 == 1)))
@@ -2032,8 +2293,7 @@ void permutacjaNaroznikow(Sciana sciana[6][3][9])
 			n1 = dajKolor(wall[3][2][1].kolor);
 			z1 = dajKolor(wall[1][2][1].kolor);
 			licznik++;
-			printf("w petli %d \n", licznik);
-			printf(",z0 %d,c6 %d,n0 %d,n1 %d,z1 %d\n", z0, c6, n0, n1, z1);
+			
 		}
 		b2 = dajKolor(wall[0][0][2].kolor);
 		c2 = dajKolor(wall[5][0][2].kolor);
@@ -2050,7 +2310,6 @@ void permutacjaNaroznikow(Sciana sciana[6][3][9])
 			tfunkcja('t');
 			vfunkcja('v');
 			yfunkcja('y');
-			printf("HOPHOP licznik %d \n", licznik);
 		}
 		else
 		{
@@ -2065,7 +2324,6 @@ void permutacjaNaroznikow(Sciana sciana[6][3][9])
 			yfunkcja('y');
 			rfunkcja('r');
 			tfunkcja('t');
-			printf("nie HOPHOP \n");
 		}
 		//c0=dajKolor(wall[5][0][0].kolor);
 		c2 = dajKolor(wall[5][0][2].kolor);
@@ -2105,10 +2363,6 @@ void ostatniaPermutacja(Sciana sciana[6][3][9])
 	{
 		if (((z0 == 1)&(z2 == 1)) | ((n0 == 1)&(z2 == 1)&(g2 == 1)) | ((z0 == 1)&(g0 == 1)&(b2 == 1)))
 		{
-			if ((z0 == 1)&(z2 == 1))
-				printf("AUTO \n");
-			else
-				printf("OK \n");
 			vfunkcja('v');
 			nfunkcja('n');
 			cfunkcja('c');
@@ -2126,7 +2380,6 @@ void ostatniaPermutacja(Sciana sciana[6][3][9])
 		}
 		else if ((n0 == 1)&(g0 == 1))
 		{
-			printf("ZABA \n");
 			zfunkcja('z');
 			bfunkcja('b');
 			xfunkcja('x');
@@ -2144,7 +2397,6 @@ void ostatniaPermutacja(Sciana sciana[6][3][9])
 		}
 		else if ((n0 == 1)&(b2 == 1))
 		{
-			printf("2 zle po przekatnej \n");
 			zfunkcja('z');
 			bfunkcja('b');
 			xfunkcja('x');
@@ -2187,6 +2439,8 @@ void ostatniaPermutacja(Sciana sciana[6][3][9])
 }
 void Keyboard(unsigned char key, int x, int y)
 {
+
+
 	if (key == 'o')
 	{
 		int los, licznik;
@@ -2198,94 +2452,94 @@ void Keyboard(unsigned char key, int x, int y)
 			{
 			case 0:
 			{
-					  qfunkcja('q');
-					  break;
+				qfunkcja('q');
+				break;
 			}
 			case 1:
 			{
-					  wfunkcja('w');
-					  break;
+				wfunkcja('w');
+				break;
 			}
 			case 2:
 			{
-					  sfunkcja('s');
-					  break;
+				sfunkcja('s');
+				break;
 			}
 			case 3:
 			{
-					  afunkcja('a');
-					  break;
+				afunkcja('a');
+				break;
 			}
 			case 4:
 			{
-					  zfunkcja('z');
-					  break;
+				zfunkcja('z');
+				break;
 			}
 			case 5:
 			{
-					  xfunkcja('x');
-					  break;
+				xfunkcja('x');
+				break;
 			}
 			case 6:
 			{
-					  rfunkcja('r');
-					  break;
+				rfunkcja('r');
+				break;
 			}
 			case 7:
 			{
-					  efunkcja('e');
-					  break;
+				efunkcja('e');
+				break;
 			}
 			case 8:
 			{
-					  ffunkcja('f');
-					  break;
+				ffunkcja('f');
+				break;
 			}
 			case 9:
 			{
-					  dfunkcja('d');
-					  break;
+				dfunkcja('d');
+				break;
 			}
 			case 10:
 			{
-					   vfunkcja('v');
-					   break;
+				vfunkcja('v');
+				break;
 			}
 			case 11:
 			{
-					   cfunkcja('c');
-					   break;
+				cfunkcja('c');
+				break;
 			}
 			case 12:
 			{
-					   tfunkcja('t');
-					   break;
+				tfunkcja('t');
+				break;
 			}
 			case 13:
 
 			{
-					   yfunkcja('y');
-					   break;
+				yfunkcja('y');
+				break;
 			}
 			case 14:
 			{
-					   gfunkcja('g');
-					   break;
+				gfunkcja('g');
+				break;
 			}
 			case 15:
 			{
-					   hfunkcja('h');
-					   break;
+				hfunkcja('h');
+				break;
 			}
 			case 16:
 			{
-					   bfunkcja('b');
-					   break;
+				bfunkcja('b');
+				break;
 			}
 			case 17:
 			{
-					   nfunkcja('n');
-					   break;
+				nfunkcja('n');
+				break;
 			}
 			}
 			transformacja(ref);
@@ -2309,6 +2563,69 @@ void Keyboard(unsigned char key, int x, int y)
 		permutacjaNaroznikow(wall);
 		ostatniaPermutacja(wall);
 		slip = 12;
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		{
+
+			rotatex = floor(rotatex);
+			rotatey = floor(rotatey);
+			if ((rotatex>0)&(rotatey>0))
+			{
+				while ((rotatex != 0) | (rotatey != 0))
+				{
+					if (rotatex != 0)
+						rotatex -= 1;
+					if (rotatey != 0)
+						rotatey -= 1;
+					Sleep(5);
+					Display();
+				}
+			}
+			if ((rotatex<0)&(rotatey>0))
+			{
+				while ((rotatex != 0) | (rotatey != 0))
+				{
+					if (rotatex != 0)
+						rotatex += 1;
+					if (rotatey != 0)
+						rotatey -= 1;
+					Sleep(5);
+					Display();
+				}
+			}
+			if ((rotatex<0)&(rotatey<0))
+			{
+				while ((rotatex != 0) | (rotatey != 0))
+				{
+					if (rotatex != 0)
+						rotatex += 1;
+					if (rotatey != 0)
+						rotatey += 1;
+					Sleep(5);
+					Display();
+				}
+			}
+			if ((rotatex>0)&(rotatey<0))
+			{
+				while ((rotatex != 0) | (rotatey != 0))
+				{
+					if (rotatex != 0)
+						rotatex -= 1;
+					if (rotatey != 0)
+						rotatey += 1;
+					Sleep(5);
+					Display();
+				}
+			}
+			gratulacje = 1;
+			while ((graty1>8) | (graty2>-8))
+			{
+				graty1 -= 0.02;
+				graty2 -= 0.02;
+				Display();
+			}
+			Display();
+		}
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 	if (key == '1')
 	{
@@ -2374,6 +2691,9 @@ void Keyboard(unsigned char key, int x, int y)
 	if (key == 27)
 	{
 		menu = 0;
+		gratulacje = 0;
+		GLfloat graty1 = 24;
+		GLfloat graty2 = 8;
 		Display();
 	}
 	if (key == 'a')
@@ -2419,6 +2739,15 @@ void Keyboard(unsigned char key, int x, int y)
 	////
 	if (key == 'n')
 		nfunkcja(key);
+	if (key == '+'){
+		Density += 0.002;
+		Display();
+	}
+	if (key == '-'){
+		Density -= 0.002;
+		Display();
+
+	}
 }
 
 void SpecialKeys(int key, int x, int y)
@@ -2453,35 +2782,88 @@ void SpecialKeys(int key, int x, int y)
 	Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 }
 
-// obs³uga przycisków myszki
+// obs3uga przycisków myszki
 
 void MouseButton(int button, int state, int x, int y)
 {
-
-	if ((button == GLUT_LEFT_BUTTON)&(x > przycisk1x)&(x<przycisk1x + szer)&(y>przycisk1y)&(y < przycisk1y + wys)&(menu == 0))
+	if ((button == GLUT_LEFT_BUTTON)&(x > przycisk1x)&(x<przycisk1x + szer)&(y>przycisk1y)&(y < przycisk1y + wys))
 	{
-		if ((state == GLUT_UP)&(akt1 == 1))
+		if ((state == GLUT_UP)&&(akt1 == 1)&&(menu == 0))
+		{
+			button = 10;
 			menu = 1;
+			//printf("menu opcje dzwiek");
+		}
+		if ((state == GLUT_UP)&&(menu == 2)){
+			button = 10;
+			
+			menu = 3;	
+		}
+		if ((state == GLUT_UP)&&(menu == 3))
+		{
+			button = 10;
+			menu_dzwieki = 0;
+			Display();
+		}
+		if ((state == GLUT_UP)&&(menu == 4))
+		{
+			button = 10;
+			menu_latwy = 0;
+			Display();
+		}
 		Display();
 	}
-	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk2x)&(x<przycisk2x + szer)&(y>przycisk2y)&(y < przycisk2y + wys)&(menu == 0))
+	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk3x)&(x<przycisk3x + szer)&(y>przycisk3y)&(y < przycisk3y + wys))
 	{
-		if (state == GLUT_UP)
+		if ((state == GLUT_UP)&&(menu == 0))
+			exit(0);
+		if ((state == GLUT_UP)&&(menu == 2)){
+			button = 10;
+			menu = 0;
+		}
+		if ((state == GLUT_UP)&&(menu == 3)){
+			button = 10;
+			menu = 2;
+		}
+		if ((state == GLUT_UP)&&(menu == 4)){
+			button = 10;
+			menu = 2;
+		}
+	}
+	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk2x)&(x<przycisk2x + szer)&(y>przycisk2y)&(y < przycisk2y + wys))
+	{
+		if ((state == GLUT_UP)&&(menu == 0))
 		{
-			menu = 1;
+			button = 10;
+			state = GLUT_DOWN;
+			menu = 2;
+			Display();
+		}
+		if ((state == GLUT_UP)&&(menu == 2))
+		{
+			button = 10;
+			menu = 4;
+			Display();
+		}
+		if ((state == GLUT_UP)&&(menu == 3))
+		{
+			button = 10;
+			menu_dzwieki = 1;
+			Display();
+		}
+		if ((state == GLUT_UP)&&(menu == 4))
+		{
+			button = 10;
+			menu_latwy = 1;
 			Display();
 		}
 	}
-	else if ((button == GLUT_LEFT_BUTTON)&(x > przycisk3x)&(x<przycisk3x + szer)&(y>przycisk3y)&(y < przycisk3y + wys)&(menu == 0))
-	{
-		if (state == GLUT_UP)
-			exit(0);
-	}
+
 	if (button == GLUT_LEFT_BUTTON)
 	{
-		// zapamiêtanie stanu lewego przycisku myszki
+		// zapamietanie stanu lewego przycisku myszki
 		button_state = state;
-		// zapamiêtanie po³o¿enia kursora myszki
+		// zapamietanie po3o?enia kursora myszki
 		if (state == GLUT_DOWN)
 		{
 			button_x = x;
@@ -2490,13 +2872,12 @@ void MouseButton(int button, int state, int x, int y)
 	}
 }
 
-// obs³uga ruchu kursora myszki
+// obs3uga ruchu kursora myszki
 
 void MouseMotion(int x, int y)
 {
-	if ((button_state == GLUT_DOWN)&(menu != 0))
+	if ((button_state == GLUT_DOWN)&((menu != 0)&(gratulacje != 1)))
 	{
-		printf("%f,%f\n", rotatex, rotatey);
 		rotatey += 10 * (right - left) / glutGet(GLUT_WINDOW_WIDTH) *(x - button_x);
 		button_x = x;
 		rotatex -= 10 * (top - bottom) / glutGet(GLUT_WINDOW_HEIGHT) *(button_y - y);
@@ -2511,31 +2892,49 @@ void MousePassiveMotion(int x, int y)
 	if ((x > przycisk1x)&(x<przycisk1x + szer)&(y>przycisk1y)&(y < przycisk1y + wys))
 	{
 		akt1 = 1;
+		akt4 = 1;
+		akt7 = 1;
+		akt10 = 1;
 		Display();
 	}
 	else if (akt1 == 1)
 	{
 		akt1 = 0;
+		akt4 = 0;
+		akt7 = 0;
+		akt10 = 0;
 		Display();
 	}
 	else if ((x > przycisk2x)&(x<przycisk2x + szer)&(y>przycisk2y)&(y < przycisk2y + wys))
 	{
 		akt2 = 1;
+		akt5 = 1;
+		akt8 = 1;
+		akt11 = 1;
 		Display();
 	}
 	else if (akt2 == 1)
 	{
 		akt2 = 0;
+		akt5 = 0;
+		akt8 = 0;
+		akt11 = 0;
 		Display();
 	}
 	else if ((x > przycisk3x)&(x<przycisk3x + szer)&(y>przycisk3y)&(y < przycisk3y + wys))
 	{
 		akt3 = 1;
+		akt6 = 1;
+		akt9 = 1;
+		akt12 = 1;
 		Display();
 	}
 	else if (akt3 == 1)
 	{
 		akt3 = 0;
+		akt6 = 0;
+		akt9 = 0;
+		akt12 = 0;
 		Display();
 	}
 }
@@ -2575,15 +2974,11 @@ int main(int argc, char * argv[])
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-	glutInitWindowSize(800, 800);
+	glutInitWindowSize(600, 600);
 	inicjujWspolrzedne();
 	inicjujKolory(wall, kolor_zew);
 
-#ifdef WIN32
-	glutCreateWindow("Globalne światło otaczające");
-#else
-	glutCreateWindow("Globalne swiatlo otaczajace");
-#endif
+	glutCreateWindow("Kostka Rubika");
 
 	glGenTextures(1, &tekstura[0]);
 	glBindTexture(GL_TEXTURE_2D, tekstura[0]);
@@ -2606,19 +3001,73 @@ int main(int argc, char * argv[])
 	glGenTextures(1, &tekstura[6]);
 	glBindTexture(GL_TEXTURE_2D, tekstura[6]);
 	LoadTGATexture("wyjscie_on.tga");
+	glGenTextures(1, &tekstura[7]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[7]);
+	LoadTGATexture("opcje_menu.tga");
+	glGenTextures(1, &tekstura[8]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[8]);
+	LoadTGATexture("dzwiek.tga");
+	glGenTextures(1, &tekstura[9]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[9]);
+	LoadTGATexture("dzwiek_on.tga");
+	glGenTextures(1, &tekstura[10]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[10]);
+	LoadTGATexture("poziom.tga");
+	glGenTextures(1, &tekstura[11]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[11]);
+	LoadTGATexture("poziom_on.tga");
+	glGenTextures(1, &tekstura[12]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[12]);
+	LoadTGATexture("powrot.tga");
+	glGenTextures(1, &tekstura[13]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[13]);
+	LoadTGATexture("powrot_on.tga");
+	glGenTextures(1, &tekstura[14]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[14]);
+	LoadTGATexture("dzwiek_menu.tga");
+	glGenTextures(1, &tekstura[15]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[15]);
+	LoadTGATexture("poziom_menu.tga");
+	glGenTextures(1, &tekstura[16]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[16]);
+	LoadTGATexture("wlaczone.tga");
+	glGenTextures(1, &tekstura[17]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[17]);
+	LoadTGATexture("wlaczone_on.tga");
+	glGenTextures(1, &tekstura[18]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[18]);
+	LoadTGATexture("wylaczone.tga");
+	glGenTextures(1, &tekstura[19]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[19]);
+	LoadTGATexture("wylaczone_on.tga");
+	glGenTextures(1, &tekstura[20]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[20]);
+	LoadTGATexture("latwy.tga");
+	glGenTextures(1, &tekstura[21]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[21]);
+	LoadTGATexture("latwy_on.tga");
+	glGenTextures(1, &tekstura[22]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[22]);
+	LoadTGATexture("trudny.tga");
+	glGenTextures(1, &tekstura[23]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[23]);
+	LoadTGATexture("trudny_on.tga");
+	glGenTextures(1, &tekstura[24]);
+	glBindTexture(GL_TEXTURE_2D, tekstura[24]);
+	LoadTGATexture("gratulacje.tga");
 
 	glutDisplayFunc(Display);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
 	glutSpecialFunc(SpecialKeys);
 
-	// obs³uga przycisków myszki
+	// obs3uga przycisków myszki
 	glutMouseFunc(MouseButton);
 
-	// obs³uga ruchu kursora myszki
+	// obs3uga ruchu kursora myszki
 	glutMotionFunc(MouseMotion);
 
-	// obs³uga ruchu kursora myszki
+	// obs3uga ruchu kursora myszki
 	glutPassiveMotionFunc(MousePassiveMotion);
 
 	glutCreateMenu(Menu);
@@ -2642,8 +3091,28 @@ int main(int argc, char * argv[])
 #endif
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
+	init();
+//	glEnable(GL_CULL_FACE);
+//	glCullFace(GL_BACK);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 
 	glutMainLoop();
-	glDeleteTextures(7, tekstura);
+	glDeleteTextures(24, tekstura);
 	return 0;
 }
